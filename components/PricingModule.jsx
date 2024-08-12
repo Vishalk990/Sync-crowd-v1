@@ -7,14 +7,14 @@ import { Button } from "@/components/ui/button";
 import { frequencies, tiers, CheckIcon } from "../app/pricing/pricingContent";
 import { CircleDollarSign, LogIn } from "lucide-react";
 import { loadStripe } from "@stripe/stripe-js";
-import { useUser } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";    
 import GlobalLoader from "./GlobalLoader";
 
 export default function PricingModule() {
   const [isLoading, setIsLoading] = useState(false);
-  const user = useUser();
 
-  const makePayment = async (e, tier, price) => {
+
+  const makePayment = async (e, tire, price) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -24,16 +24,13 @@ export default function PricingModule() {
     price = price.replace("₹", "");
     price = price.replace(",", "");
 
-    const body = {
-      tier: {
-        id: tier.id,
-        name: tier.name,
-        credits: tier.credits
-      },
-      price: price,
-      clerkId: user.clerkId
-    };
     
+    const body = {
+      tire: tire,
+      price: price,
+    };
+    // console.log(price.replace("₹", ""));
+
 
     const headers = {
       "Content-Type": "application/json",
