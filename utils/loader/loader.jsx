@@ -1,7 +1,7 @@
 // components/Loader.js
 
 import React from 'react';
-import styles from './Loader.module.css'; // Import the CSS module
+import styles from "./loader.module.css"; 
 
 const Loader = () => {
   return (

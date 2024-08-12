@@ -1,8 +1,8 @@
-// app/api/user/addcloudinaryurl/route.js
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/dbConnect';
-import User from '@/model/User';
+
 import { getAuth } from '@clerk/nextjs/server';
+import dbConnect from '@/utils/dbConnect';
+import User from '@/models/User';
 
 export async function POST(req) {
   try {
