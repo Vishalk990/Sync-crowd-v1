@@ -1,0 +1,54 @@
+.loading {
+    --speed-of-animation: 1.5s; 
+    --gap: 6px;
+    --first-color: #5e8fe3;
+    --second-color: #d2b0dc;
+    --third-color: #9ca5b1;
+    --fourth-color: #6e698a;
+    --fifth-color: #699BF7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100px;
+    gap: 6px;
+    height: 100px;
+  }
+  
+  .loading span {
+    width: 8px; 
+    height: 50px;
+    background: var(--first-color);
+    animation: scale var(--speed-of-animation) ease-in-out infinite;
+    border-radius: 4px; /* Rounded corners */
+  }
+  
+  .loading span:nth-child(2) {
+    background: var(--second-color);
+    animation-delay: -1.2s; /* Adjusted delay */
+  }
+  
+  .loading span:nth-child(3) {
+    background: var(--third-color);
+    animation-delay: -1.05s; /* Adjusted delay */
+  }
+  
+  .loading span:nth-child(4) {
+    background: var(--fourth-color);
+    animation-delay: -0.9s; /* Adjusted delay */
+  }
+  
+  .loading span:nth-child(5) {
+    background: var(--fifth-color);
+    animation-delay: -0.75s; /* Adjusted delay */
+  }
+  
+  @keyframes scale {
+    0%, 40%, 100% {
+      transform: scaleY(0.05);
+    }
+  
+    20% {
+      transform: scaleY(1);
+    }
+  }
+  
