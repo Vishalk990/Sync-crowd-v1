@@ -1,31 +1,48 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-const connection = {};
+const MONGODB_URI = process.env.MONGODB_URI;
+const DB_NAME = 'sync-crowd';
 
-async function dbConnect() {
-    if (connection.isConnected) {
-        console.log("DB is already connected!");
-        return mongoose;
-    }
-
-    try {
-        // Specify the database name
-        const dbName = 'sync-crowd';
-        const uri = `${process.env.MONGODB_URI}`;
-
-        const db = await mongoose.connect(uri, {
-            dbName: dbName,
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
-
-        connection.isConnected = db.connections[0].readyState;
-        console.log(`DB connected successfully to ${dbName}!`);
-        return mongoose;
-    } catch (error) {
-        console.log("DB connection failed!", error);
-        process.exit(1);
-    }
+if (!MONGODB_URI) {
+  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
 }
 
-module.exports = dbConnect;
+/**
+ * Global is used here to maintain a cached connection across hot reloads
+ * in development. This prevents connections growing exponentially
+ * during API Route usage.
+ */
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
+
+async function dbConnect() {
+  if (cached.conn) {
+    return cached.conn;
+  }
+
+  if (!cached.promise) {
+    const opts = {
+      dbName: DB_NAME,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    };
+
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+      return mongoose;
+    });
+  }
+
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    throw e;
+  }
+
+  return cached.conn;
+}
+
+export default dbConnect;
