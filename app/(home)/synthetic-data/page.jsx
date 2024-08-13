@@ -11,14 +11,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles, Upload, Download, Loader2 } from "lucide-react";
 
 export default function CSVUpload() {
-
-  const {user} = useUser();
+  const { user, isLoaded, isSignedIn } = useUser();
   const [file, setFile] = useState(null);
   const [publicUrl, setPublicUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [sampleCount, setSampleCount] = useState(1000);
-  const { uploadToCloudinary, deleteFromCloudinary, isUploading, uploadError } = useCloudinaryUpload();
+  const { uploadToCloudinary, deleteFromCloudinary, isUploading, uploadError } =
+    useCloudinaryUpload();
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -28,7 +28,36 @@ export default function CSVUpload() {
     setSampleCount(parseInt(e.target.value));
   };
 
+  const saveSyntheticDataset = async (cloudinaryUrl, filename) => {
+    try {
+      const response = await fetch('/api/synthetic-dataset', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ cloudinaryUrl, filename }),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save synthetic dataset');
+      }
+  
+      const data = await response.json();
+      console.log('Synthetic dataset saved successfully:', data.syntheticDataset);
+    } catch (error) {
+      console.error('Error saving synthetic dataset:', error);
+      setError(error.message || 'Failed to save synthetic dataset');
+    }
+  };
+
   const handleUpload = async () => {
+
+    if (!isLoaded || !isSignedIn) {
+      setError("You must be signed in to upload files");
+      return;
+    }
+
     if (!file) return;
 
     setIsLoading(true);
@@ -69,40 +98,42 @@ export default function CSVUpload() {
 
       // Upload the new file to cloudinary
       const blob = new Blob([csv], { type: "text/csv" });
-      const newFile = new File([blob], "generated_data.csv", { type: "text/csv" });
+      const newFile = new File([blob], "generated_data.csv", {
+        type: "text/csv",
+      });
       const newUploadData = await uploadToCloudinary(newFile);
       setPublicUrl(newUploadData.secure_url);
+      await saveSyntheticDataset(newUploadData.secure_url, newFile.name);
 
       console.log("2nd upload done");
 
-
-       // Add the new URL to the user's cloudinaryUrls array
+      // Add the new URL to the user's cloudinaryUrls array
       if (user) {
-        const response = await fetch('/api/user/addcloudinaryurl', {
-          method: 'POST',
+        const response = await fetch("/api/user/addcloudinaryurl", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({ cloudinaryUrl: newUploadData.secure_url }),
         });
 
         if (!response.ok) {
-          throw new Error('Failed to add Cloudinary URL to user profile');
+          throw new Error("Failed to add Cloudinary URL to user profile");
         }
 
-        console.log('Cloudinary URL added to user profile');
+        console.log("Cloudinary URL added to user profile");
       }
-
     } catch (error) {
       console.error("Error:", error);
       setError(error.message || uploadError || "An error occurred");
     } finally {
       setIsLoading(false);
     }
+
+    
   };
 
   return (
-
     <div className="min-h-[90vh] bg-gray-100">
       <nav className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-4 py-3">
@@ -173,7 +204,9 @@ export default function CSVUpload() {
               )}
 
               {(error || uploadError) && (
-                <div className="text-red-500 text-sm mt-2">{error || uploadError}</div>
+                <div className="text-red-500 text-sm mt-2">
+                  {error || uploadError}
+                </div>
               )}
             </form>
           </CardContent>

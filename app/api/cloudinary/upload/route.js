@@ -19,20 +19,24 @@ export async function POST(request) {
       );
     }
 
-    const bytes = await file.arrayBuffer();
+    const bytes = await file.arrayBuffer(); 
     const buffer = Buffer.from(bytes);
 
-    // Generate a unique public ID for the file
-    const uniquePublicId = `csv_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+    const originalFilename = file.name;
+    
+    const filenameWithoutExtension = originalFilename.replace(/\.[^/.]+$/, "").replace(/\s+/g, '_');
+    
+
+    const uniquePublicId = `csv_${Date.now()}_${filenameWithoutExtension}`;
 
     const result = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         { 
-            resource_type: 'raw',
-            public_id: uniquePublicId,
-            format: 'csv', // Explicitly set the format to CSV
-            use_filename: true,
-          },
+          resource_type: 'raw',
+          public_id: uniquePublicId,
+          format: 'csv',
+          use_filename: true,
+        },
         (error, result) => {
           if (error) reject(error);
           else resolve(result);

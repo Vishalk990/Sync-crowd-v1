@@ -1,13 +1,13 @@
 "use server";
 
-const { default: User } = require("@/models/User");
-const { default: dbConnect } = require("@/utils/dbConnect");
-
+import User from "@/models/User";
+import dbConnect from "@/utils/dbConnect";
 
 export async function createUser(user) {
     try {
         await dbConnect();
         const newUser = await User.create(user);
+        
         return JSON.parse(JSON.stringify(newUser));
     } catch (error) {
         console.error("Error creating user:", error);

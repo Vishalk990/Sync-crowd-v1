@@ -5,6 +5,9 @@ import dbConnect from "@/utils/dbConnect";
 
 export async function POST(request) {
   const { userId } = getAuth(request);
+
+  console.log(request);
+  
   
   if (!userId) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {

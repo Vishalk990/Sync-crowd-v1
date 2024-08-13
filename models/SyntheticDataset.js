@@ -6,6 +6,9 @@ const syntheticDatasetSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    filename: {
+        type: String,
+    },
     cloudinaryUrl: { 
         type: String,
         required: true

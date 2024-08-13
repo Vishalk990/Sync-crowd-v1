@@ -46,7 +46,7 @@ export function  useSaveUserToDatabase() {
           duration: 2000,
         });
       } else {
-        // User doesn't exist, save to database
+ 
         await saveUserToDatabase(user);
       }
     } catch (error) {
