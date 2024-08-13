@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 
 function DashboardLayout({ children }) {
 
-  useSaveUserToDatabase();
+  // useSaveUserToDatabase();
 
   return (
     <div className="bg-gradient min-h-screen">

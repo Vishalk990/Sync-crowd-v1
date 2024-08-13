@@ -49,34 +49,39 @@ export async function POST(req) {
 
   // Do something with the payload
   // For this guide, you simply log the payload to the console
-  const { id } = evt.data;
+  // const { id } = evt.data;
   const eventType = evt.type;
+  console.log(eventType);
+  
 
   if(eventType === "user.created") {
-    const {id,name,email} = evt.data;
+    const { id, email_addresses, username, first_name, last_name } = evt.data;
 
     const user = {
-        clerkId: id,
-        name: name,
-        email: email,
+      clerkId: id,
+      name: `${first_name} ${last_name}` || username,
+      email: email_addresses[0]?.email_address,
     };
-
     console.log(user);
-
-    const newUser = await createUser(user);
-    if(newUser) {
-        await clerkClient.users.updateUserMetadata(id, {
-            publicMetadata: {
-                userId: newUser._id, 
-            }
-        })
-    }
-
-    return NextResponse.json({message: "New user created ", user: newUser});
     
-  }
-  console.log(`Webhook with an ID of ${id} and type of ${eventType}`);
-  console.log('Webhook body:', body);
 
-  return new Response('', { status: 200 });
+    try {
+      const newUser = await createUser(user);
+      if(newUser) {
+        await clerkClient.users.updateUserMetadata(id, {
+          publicMetadata: {
+            userId: newUser._id, 
+          }
+        });
+        return NextResponse.json({ message: "New user created", user: newUser });
+      } else {
+        return NextResponse.json({ error: "Failed to create user" }, { status: 500 });
+      }
+    } catch (error) {
+      console.error("Error in user creation process:", error);
+      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    }
+  }
+
+  return NextResponse.json({ message: "Webhook received" }, { status: 200 });
 }

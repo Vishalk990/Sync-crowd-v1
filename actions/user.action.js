@@ -9,10 +9,8 @@ export async function createUser(user) {
         await dbConnect();
         const newUser = await User.create(user);
         return JSON.parse(JSON.stringify(newUser));
-        
-        
-
     } catch (error) {
-        
+        console.error("Error creating user:", error);
+        throw error;
     }
 }
