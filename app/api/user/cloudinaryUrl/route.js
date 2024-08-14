@@ -1,7 +1,7 @@
 import User from '@/models/User';
+import SyntheticDataset from '@/models/SyntheticDataset';
 import dbConnect from '@/utils/dbConnect';
 import { NextResponse } from 'next/server';
-
 
 export async function GET(request) {
   try {
@@ -18,7 +18,9 @@ export async function GET(request) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ cloudinaryUrls: user.cloudinaryUrls });
+    const datasets = await SyntheticDataset.find({ user: user._id });
+
+    return NextResponse.json({ datasets });
   } catch (error) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }

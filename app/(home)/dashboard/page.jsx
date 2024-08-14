@@ -3,10 +3,21 @@
 import WordPullUp from "@/components/magicui/word-pull-up";
 import React, { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import GlobalLoader from "@/components/GlobalLoader";
+import { Download } from "lucide-react";
 
 const PageContent = () => {
   const { user } = useUser();
-  const [cloudinaryUrls, setCloudinaryUrls] = useState([]);
+  const [datasets, setDatasets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -31,7 +42,9 @@ const PageContent = () => {
       }
 
       const data = await response.json();
-      setCloudinaryUrls(data.cloudinaryUrls);
+      console.log(data); // Debugging line to check the response
+      setDatasets(data.datasets || []);
+      
     } catch (err) {
       setError(err.message);
     } finally {
@@ -48,21 +61,40 @@ const PageContent = () => {
       <div className="m-3 p-3">
         <h2 className="text-2xl font-semibold m-3 p-3">History</h2>
         {loading ? (
-          <p>Loading...</p>
+          <GlobalLoader/>
         ) : error ? (
           <p>Error: {error}</p>
-        ) : cloudinaryUrls.length > 0 ? (
-          <ul className="list-disc pl-5">
-            {cloudinaryUrls.map((url, index) => (
-              <li key={index} className="mb-2">
-                <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-                  {url}
-                </a>
-              </li>
-            ))}
-          </ul>
+        ) : datasets.length > 0 ? (
+          <Table className="m-3 w-[90%]">
+            <TableHeader>
+              <TableRow>
+                <TableHead></TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Created At</TableHead>
+                <TableHead>Download</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {datasets.map((dataset, index) => (
+                <TableRow key={index}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{dataset.filename || `Dataset ${index + 1}`}</TableCell>
+                  <TableCell>{new Date(dataset.createdAt).toLocaleString()}</TableCell>
+                  <TableCell>
+                    <Button 
+                      onClick={() => window.open(dataset.cloudinaryUrl, '_blank')}
+                      variant="outline"
+                      size="sm"
+                    >
+                      <Download/>
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         ) : (
-          <p className="m-3 p-3">No datasets generated yet.</p>
+          <p className="m-3 p-3">No datasets generated.</p>
         )}
       </div>
     </>

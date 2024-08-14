@@ -1,17 +1,18 @@
 "use client";
-import styles from "../app/pricing/pricing.module.css"
+import styles from "../app/pricing/pricing.module.css";
 import { useState } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { frequencies, tiers, CheckIcon } from "../app/pricing/pricingContent";
-import { CircleDollarSign, LogIn } from "lucide-react";
-import { loadStripe } from "@stripe/stripe-js";  
+import { CircleDollarSign } from "lucide-react";
+import { loadStripe } from "@stripe/stripe-js";
 import GlobalLoader from "./GlobalLoader";
+import { useRouter } from "next/navigation";
 
 export default function PricingModule() {
   const [isLoading, setIsLoading] = useState(false);
-
+  const router = useRouter();
 
   const makePayment = async (e, tire, price) => {
     e.preventDefault();
@@ -23,13 +24,11 @@ export default function PricingModule() {
     price = price.replace("₹", "");
     price = price.replace(",", "");
 
-    
     const body = {
       tire: tire,
       price: price,
     };
     // console.log(price.replace("₹", ""));
-
 
     const headers = {
       "Content-Type": "application/json",
@@ -43,8 +42,8 @@ export default function PricingModule() {
 
     const session = await response.json();
     console.log(session.amount_total);
-    localStorage.setItem('sessionId', session.id);
-    localStorage.setItem('amount', session.amount_total);
+    localStorage.setItem("sessionId", session.id);
+    localStorage.setItem("amount", session.amount_total);
 
     console.log(session.id);
     console.log(session.amount_total);
@@ -66,7 +65,7 @@ export default function PricingModule() {
     <>
       {isLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <GlobalLoader/>
+          <GlobalLoader />
         </div>
       )}
       <div
@@ -103,10 +102,11 @@ export default function PricingModule() {
                   <Label className="sr-only">Payment frequency</Label>
                   {frequencies.map((option) => (
                     <Label
-                      className={`cursor-pointer rounded-full px-2.5 py-2 transition-all ${frequency.value === option.value
-                        ? "bg-black text-white dark:bg-slate-900/70 dark:text-white/70"
-                        : "bg-transparent text-gray-500 hover:bg-slate-500/10"
-                        }`}
+                      className={`cursor-pointer rounded-full px-2.5 py-2 transition-all ${
+                        frequency.value === option.value
+                          ? "bg-black text-white dark:bg-slate-900/70 dark:text-white/70"
+                          : "bg-transparent text-gray-500 hover:bg-slate-500/10"
+                      }`}
                       key={option.value}
                       htmlFor={option.value}
                     >
@@ -126,44 +126,50 @@ export default function PricingModule() {
             )}
 
             <div
-              className={`isolate mx-auto mt-4 mb-28 grid max-w-md grid-cols-1 gap-8 lg:mx-0 lg:max-w-none ${tiers.length === 2 ? "lg:grid-cols-2" : ""
-                } ${tiers.length === 3 ? "lg:grid-cols-3" : ""}`}
+              className={`isolate mx-auto mt-4 mb-28 grid max-w-md grid-cols-1 gap-8 lg:mx-0 lg:max-w-none ${
+                tiers.length === 2 ? "lg:grid-cols-2" : ""
+              } ${tiers.length === 3 ? "lg:grid-cols-3" : ""}`}
             >
               {tiers.map((tier) => (
                 <div
                   key={tier.id}
-                  className={`max-w-sm ring-1 rounded-3xl p-8 xl:p-10 ${tier.featured
-                    ? "!bg-gray-900 ring-gray-900 dark:!bg-gray-100 dark:ring-gray-100"
-                    : "bg-white dark:bg-gray-900/80 ring-gray-300/70 dark:ring-gray-700"
-                    } ${tier.highlighted ? styles.fancyGlassContrast : ""}`}
+                  className={`max-w-sm ring-1 rounded-3xl p-8 xl:p-10 ${
+                    tier.featured
+                      ? "!bg-gray-900 ring-gray-900 dark:!bg-gray-100 dark:ring-gray-100"
+                      : "bg-white dark:bg-gray-900/80 ring-gray-300/70 dark:ring-gray-700"
+                  } ${tier.highlighted ? styles.fancyGlassContrast : ""}`}
                 >
                   <h3
                     id={tier.id}
-                    className={`text-2xl font-bold tracking-tight ${tier.featured
-                      ? "text-white dark:text-black"
-                      : "text-black dark:text-white"
-                      }`}
+                    className={`text-2xl font-bold tracking-tight ${
+                      tier.featured
+                        ? "text-white dark:text-black"
+                        : "text-black dark:text-white"
+                    }`}
                   >
                     {tier.name}
                   </h3>
                   <p
-                    className={`mt-4 text-sm leading-6 ${tier.featured
-                      ? "text-gray-300 dark:text-gray-500"
-                      : "text-gray-600 dark:text-gray-400"
-                      }`}
+                    className={`mt-4 text-sm leading-6 ${
+                      tier.featured
+                        ? "text-gray-300 dark:text-gray-500"
+                        : "text-gray-600 dark:text-gray-400"
+                    }`}
                   >
                     {tier.description}
                   </p>
                   <p className="mt-6 flex items-baseline gap-x-1">
                     <span
-                      className={`text-4xl font-bold tracking-tight ${tier.featured
-                        ? "text-white dark:text-black"
-                        : "text-black dark:text-white"
-                        } ${tier.discountPrice &&
-                          tier.discountPrice[frequency.value]
+                      className={`text-4xl font-bold tracking-tight ${
+                        tier.featured
+                          ? "text-white dark:text-black"
+                          : "text-black dark:text-white"
+                      } ${
+                        tier.discountPrice &&
+                        tier.discountPrice[frequency.value]
                           ? "line-through"
                           : ""
-                        }`}
+                      }`}
                     >
                       {typeof tier.price === "string"
                         ? tier.price
@@ -171,10 +177,11 @@ export default function PricingModule() {
                     </span>
 
                     <span
-                      className={`${tier.featured
-                        ? "text-white dark:text-black"
-                        : "text-black dark:text-white"
-                        }`}
+                      className={`${
+                        tier.featured
+                          ? "text-white dark:text-black"
+                          : "text-black dark:text-white"
+                      }`}
                     >
                       {typeof tier.discountPrice === "string"
                         ? tier.discountPrice
@@ -183,10 +190,11 @@ export default function PricingModule() {
 
                     {typeof tier.price !== "string" ? (
                       <span
-                        className={`text-sm font-semibold leading-6 ${tier.featured
-                          ? "text-gray-300 dark:text-gray-500"
-                          : "dark:text-gray-400 text-gray-600"
-                          }`}
+                        className={`text-sm font-semibold leading-6 ${
+                          tier.featured
+                            ? "text-gray-300 dark:text-gray-500"
+                            : "dark:text-gray-400 text-gray-600"
+                        }`}
                       >
                         {frequency.priceSuffix}
                       </span>
@@ -194,23 +202,29 @@ export default function PricingModule() {
                   </p>
                   <a
                     aria-describedby={tier.id}
-                    className={`flex mt-6 shadow-sm ${tier.soldOut ? "pointer-events-none" : ""
-                      }`}
+                    className={`flex mt-6 shadow-sm ${
+                      tier.soldOut ? "pointer-events-none" : ""
+                    }`}
                   >
                     <Button
                       size="lg"
                       disabled={tier.soldOut}
                       isLoading={isLoading}
-                      className={`w-full text-black dark:text-white ${!tier.highlighted && !tier.featured
-                        ? "bg-gray-100 dark:bg-gray-600"
-                        : "bg-slate-300 hover:bg-slate-400 dark:bg-slate-600 dark:hover:bg-slate-700"
-                        } ${tier.featured || tier.soldOut
+                      className={`w-full text-black dark:text-white ${
+                        !tier.highlighted && !tier.featured
+                          ? "bg-gray-100 dark:bg-gray-600"
+                          : "bg-slate-300 hover:bg-slate-400 dark:bg-slate-600 dark:hover:bg-slate-700"
+                      } ${
+                        tier.featured || tier.soldOut
                           ? "bg-white dark:bg-neutral-900 hover:bg-gray-200 dark:hover:bg-black"
                           : "hover:opacity-80 transition-opacity"
-                        }`}
+                      }`}
                       variant={tier.highlighted ? "default" : "outline"}
                       onClick={(e) => {
-                        if (frequency.id === "1") {
+                        if (tier.name === "Free") {
+                          router.push("/dashboard");
+                        }
+                        else if (frequency.id === "1") {
                           makePayment(e, tier, tier.price[1]);
                         } else {
                           makePayment(e, tier, tier.price[2]);
@@ -222,19 +236,22 @@ export default function PricingModule() {
                   </a>
 
                   <ul
-                    className={`mt-8 space-y-3 text-sm leading-6 xl:mt-10 ${tier.featured
-                      ? "text-gray-300 dark:text-gray-500"
-                      : "text-gray-700 dark:text-gray-400"
-                      }`}
+                    className={`mt-8 space-y-3 text-sm leading-6 xl:mt-10 ${
+                      tier.featured
+                        ? "text-gray-300 dark:text-gray-500"
+                        : "text-gray-700 dark:text-gray-400"
+                    }`}
                   >
                     {tier.features.map((feature) => (
                       <li key={feature} className="flex gap-x-3">
                         <CheckIcon
-                          className={`h-6 w-5 flex-none ${tier.featured ? "text-white dark:text-black" : ""
-                            } ${tier.highlighted
+                          className={`h-6 w-5 flex-none ${
+                            tier.featured ? "text-white dark:text-black" : ""
+                          } ${
+                            tier.highlighted
                               ? "text-slate-500"
                               : "text-gray-500"
-                            }`}
+                          }`}
                           aria-hidden="true"
                         />
                         {feature}
@@ -243,8 +260,9 @@ export default function PricingModule() {
                   </ul>
 
                   <div
-                    className={`flex gap-2 m-4 p-3 rounded-xl font-semibold ${tier.featured ? "text-white dark:text-black" : ""
-                      } ${tier.highlighted ? "text-slate-500" : "text-gray-500"}`}
+                    className={`flex gap-2 m-4 p-3 rounded-xl font-semibold ${
+                      tier.featured ? "text-white dark:text-black" : ""
+                    } ${tier.highlighted ? "text-slate-500" : "text-gray-500"}`}
                   >
                     <CircleDollarSign />
                     {tier.credits}
