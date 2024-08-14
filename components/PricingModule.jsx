@@ -6,8 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { frequencies, tiers, CheckIcon } from "../app/pricing/pricingContent";
 import { CircleDollarSign, LogIn } from "lucide-react";
-import { loadStripe } from "@stripe/stripe-js";
-import { useUser } from "@clerk/nextjs";    
+import { loadStripe } from "@stripe/stripe-js";  
 import GlobalLoader from "./GlobalLoader";
 
 export default function PricingModule() {

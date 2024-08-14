@@ -1,19 +1,30 @@
 import { useState } from 'react';
+import { useAuth } from '@clerk/nextjs';
 
 export function useCloudinaryUpload() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
+  const { isLoaded, isSignedIn, getToken } = useAuth();
 
   const uploadToCloudinary = async (file) => {
+    if (!isLoaded || !isSignedIn) {
+      setUploadError('User not authenticated');
+      throw new Error('User not authenticated');
+    }
+
     setIsUploading(true);
     setUploadError(null);
 
     try {
+      const token = await getToken();
       const formData = new FormData();
       formData.append("file", file);
 
       const uploadResponse = await fetch("/api/cloudinary/upload", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: formData,
       });
 
@@ -32,11 +43,18 @@ export function useCloudinaryUpload() {
   };
 
   const deleteFromCloudinary = async (publicId) => {
+    if (!isLoaded || !isSignedIn) {
+      setUploadError('User not authenticated');
+      throw new Error('User not authenticated');
+    }
+
     try {
+      const token = await getToken();
       const deleteResponse = await fetch("/api/cloudinary/delete", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ public_id: publicId }),
       });
@@ -55,5 +73,6 @@ export function useCloudinaryUpload() {
     deleteFromCloudinary,
     isUploading,
     uploadError,
+    isAuthenticated: isLoaded && isSignedIn,
   };
 }
